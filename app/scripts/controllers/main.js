@@ -1,10 +1,102 @@
 'use strict';
 
 angular.module('gestionPretApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+    .controller('MainCtrl', function ($scope) {
+
+//        $scope.montant = 150000;
+//        $scope.taux = 3.8;
+//        $scope.nbMensualite = 300;
+//        $scope.mensualite = 775.28;
+
+        $scope.execCalc = function () {
+
+            $scope.sanitarize("taux");
+            $scope.sanitarize("montant");
+            $scope.sanitarize("nbMensualite");
+            $scope.sanitarize("mensualite");
+
+            if ( isNaN($scope.taux) ) {
+                console.log("erreur taux");
+                return; //pour arreter l'execution
+            }
+
+            var tauxEffectif = $scope.calcTauxEffectif($scope.taux);
+
+            if ( !isNaN($scope.montant) && !isNaN($scope.nbMensualite) ) {
+
+                $scope.mensualite = $scope.calcMensualite($scope.montant, tauxEffectif, null, $scope.nbMensualite);
+
+            } else if ( !isNaN($scope.montant) && !isNaN($scope.mensualite) ) {
+
+                $scope.nbMensualite = $scope.calcNbMensualite($scope.montant, tauxEffectif, $scope.mensualite, null);
+
+            } else if ( !isNaN($scope.mensualite) && !isNaN($scope.nbMensualite) ) {
+
+                $scope.montant = $scope.calcMontant(null, tauxEffectif, $scope.mensualite, $scope.nbMensualite);
+
+            } else {
+                console.log("vous devez remplire le taux et au moins 2 des champs");
+                return;
+            }
+
+            $scope.cout = $scope.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
+
+
+        }
+
+        $scope.sanitarize = function (maVar){
+            $scope[maVar] = parseFloat($scope[maVar]);
+        }
+
+        $scope.calcMontant = function (montant, tauxEffectif, mensualite, nbMensualite) {
+
+            var montant = (Math.pow((1+tauxEffectif/12),nbMensualite) - 1) * mensualite / (Math.pow((1+tauxEffectif/12),nbMensualite) * tauxEffectif /12 );
+            montant = Math.round(montant);
+
+            return montant;
+
+        }
+
+        $scope.calcMensualite = function (montant, tauxEffectif, mensualite, nbMensualite) {
+
+            var mensualite = (montant*(tauxEffectif/12)*Math.pow((1+tauxEffectif/12),nbMensualite)) / ((Math.pow((1+tauxEffectif/12),nbMensualite))-1);
+            //arrondissement a 2 decimal
+            mensualite = Math.round(mensualite*100)/100;
+
+            return mensualite;
+
+        }
+
+        $scope.calcNbMensualite = function (montant, tauxEffectif, mensualite, nbMensualite) {
+
+            var nbMensualite = (Math.log((12*mensualite)/(12*mensualite-tauxEffectif*montant)))/(Math.log(1+tauxEffectif/12));
+            //arrondissement a 2 decimal
+            nbMensualite = Math.round(nbMensualite);
+
+            return nbMensualite;
+
+        }
+
+        $scope.calcCout = function (montant, tauxEffectif, mensualite, nbMensualite) {
+
+            var cout = (((montant * Math.pow((1+tauxEffectif/12),nbMensualite) * tauxEffectif /12 ) / (Math.pow((1+tauxEffectif/12),nbMensualite) - 1))*nbMensualite)-montant;
+            cout = Math.round(cout*100)/100;
+
+            return cout;
+        }
+
+        $scope.calcTauxEffectif = function (taux) {
+            var tauxEffectif = taux;
+            if (taux > 1) {
+                tauxEffectif = taux / 100.0;
+            }
+
+            return tauxEffectif;
+        }
+
+        $scope.awesomeThings = [
+            'HTML5 Boilerplate',
+            'AngularJS',
+            'Karma'
+        ];
+    });
