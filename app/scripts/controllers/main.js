@@ -8,6 +8,10 @@ angular.module('gestionPretApp')
 //        $scope.nbMensualite = 300;
 //        $scope.mensualite = 775.28;
 
+        $scope.alerts = [
+//            { type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.' },
+//            { type: 'success', msg: 'Well done! You successfully read this important alert message.' }
+        ];
         $scope.execCalc = function () {
 
             $scope.sanitarize("taux");
@@ -16,7 +20,7 @@ angular.module('gestionPretApp')
             $scope.sanitarize("mensualite");
 
             if ( isNaN($scope.taux) ) {
-                console.log("erreur taux");
+                $scope.addAlert("erreur taux");
                 return; //pour arreter l'execution
             }
 
@@ -35,7 +39,7 @@ angular.module('gestionPretApp')
                 $scope.montant = $scope.calcMontant(null, tauxEffectif, $scope.mensualite, $scope.nbMensualite);
 
             } else {
-                console.log("vous devez remplire le taux et au moins 2 des champs");
+                $scope.addAlert("vous devez remplire le taux et au moins 2 des champs");
                 return;
             }
 
@@ -93,6 +97,14 @@ angular.module('gestionPretApp')
 
             return tauxEffectif;
         }
+
+        $scope.addAlert = function(myMsg) {
+            $scope.alerts.push({type: 'danger', msg: myMsg});
+        };
+
+        $scope.closeAlert = function(index) {
+            $scope.alerts.splice(index, 1);
+        };
 
         $scope.awesomeThings = [
             'HTML5 Boilerplate',

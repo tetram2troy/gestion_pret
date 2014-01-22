@@ -28,6 +28,7 @@
         <form role="form">
             <fieldset>
                 <legend>Mes informations:</legend>
+                <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
                 <div class="col-sm-4">
                     <div class="form-group">
                         <label for="inputMontant">Montant</label>
