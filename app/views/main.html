@@ -63,20 +63,22 @@
                     </div>
                 </div>
                 <div class="col-sm-4">
+                    <!--<div class="form-group">-->
+                        <!--<label for="inputCout">Coût du prêt</label>-->
+                        <!--<div class="input-group">-->
+                            <!--<input type="text" class="form-control btn-warning" id="inputCout" placeholder="82585.45" disabled ng-model="cout">-->
+                            <!--<span class="input-group-addon">€</span>-->
+                        <!--</div>-->
+                    <!--</div>-->
                     <div class="form-group">
-                        <label for="inputCout">Coût du prêt</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control btn-warning" id="inputCout" placeholder="82585.45" disabled ng-model="cout">
-                            <span class="input-group-addon">€</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="btnTableauAmortissement">&nbsp;</label><br>
+                        <label for="btnCalc">&nbsp;</label><br>
                         <button type="submit" class="btn btn-primary" id="btnCalc" ng-click="execCalc()">Calcul</button>
                     </div>
                 </div>
             </fieldset>
         </form>
+
+
         <!--<p class="lead">-->
         <!--<img src="images/yeoman.png" alt="I'm Yeoman"><br>-->
         <!--Always a pleasure scaffolding your apps.-->
@@ -86,6 +88,26 @@
     </div>
 
 <div class="row marketing">
+    <table ng-show="lstSimulation.length" class="table table-striped table-bordered table-hover ">
+        <tr>
+            <th>Montant</th>
+            <th>Taux</th>
+            <th>Nb Mensualitées</th>
+            <th>Mensualitées</th>
+            <th class="danger">coût</th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="simulation in lstSimulation">
+            <td>{{ simulation.montant }}</td>
+            <td>{{ simulation.taux }}</td>
+            <td>{{ simulation.nbMensualite }}</td>
+            <td>{{ simulation.mensualite }}</td>
+            <td class="danger">{{ simulation.cout }}</td>
+            <td> <button class="btn" ng-click="supprSimulation($index);"><span class="glyphicon glyphicon-remove"></span></button> </td>
+        </tr>
+
+    </table>
+
 </div>
 
 <div class="footer">

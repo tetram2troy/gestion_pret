@@ -3,11 +3,15 @@
 angular.module('gestionPretApp')
     .controller('MainCtrl', function ($scope) {
 
-//        $scope.montant = 150000;
-//        $scope.taux = 3.8;
-//        $scope.nbMensualite = 300;
-//        $scope.mensualite = 775.28;
+        $scope.montant = 150000;
+        $scope.taux = 3.8;
+        $scope.nbMensualite = 300;
+        $scope.mensualite = 775.28;
 
+        $scope.lstSimulation = [
+            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45},
+            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45}
+        ];
         $scope.alerts = [
 //            { type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.' },
 //            { type: 'success', msg: 'Well done! You successfully read this important alert message.' }
@@ -43,7 +47,10 @@ angular.module('gestionPretApp')
                 return;
             }
 
-            $scope.cout = $scope.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
+            var cout = $scope.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
+
+            $scope.lstSimulation.push({montant: $scope.montant, taux: $scope.taux, nbMensualite: $scope.nbMensualite, mensualite: $scope.mensualite, cout:cout});
+
 
 
         }
@@ -104,6 +111,10 @@ angular.module('gestionPretApp')
 
         $scope.closeAlert = function(index) {
             $scope.alerts.splice(index, 1);
+        };
+
+        $scope.supprSimulation = function(index) {
+            $scope.lstSimulation.splice(index, 1);
         };
 
         $scope.awesomeThings = [
