@@ -1,21 +1,32 @@
 'use strict';
 
 angular.module('gestionPretApp')
-    .controller('MainCtrl', function ($scope) {
+    .controller('MainCtrl', function ($scope, pretStorage) {
 
         $scope.montant = 150000;
         $scope.taux = 3.8;
         $scope.nbMensualite = 300;
         $scope.mensualite = 775.28;
 
-        $scope.lstSimulation = [
-            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45},
-            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45}
-        ];
+        $scope.lstSimulation = pretStorage.get();
+//        $scope.lstSimulation = [
+////            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45},
+////            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45}
+//        ];
+
         $scope.alerts = [
 //            { type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.' },
 //            { type: 'success', msg: 'Well done! You successfully read this important alert message.' }
         ];
+
+
+        $scope.$watch('lstSimulation', function (newValue, oldValue){
+
+            if (newValue !== oldValue) { // This prevents unneeded calls to the local storage
+                pretStorage.put($scope.lstSimulation);
+            }
+        }, true)
+
         $scope.execCalc = function () {
 
             $scope.sanitarize("taux");
@@ -50,8 +61,6 @@ angular.module('gestionPretApp')
             var cout = $scope.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
 
             $scope.lstSimulation.push({montant: $scope.montant, taux: $scope.taux, nbMensualite: $scope.nbMensualite, mensualite: $scope.mensualite, cout:cout});
-
-
 
         }
 

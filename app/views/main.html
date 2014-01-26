@@ -97,7 +97,7 @@
             <th class="danger">coût</th>
             <th></th>
         </tr>
-        <tr ng-repeat="simulation in lstSimulation">
+        <tr ng-repeat="simulation in lstSimulation track by $index">
             <td>{{ simulation.montant }}</td>
             <td>{{ simulation.taux }}</td>
             <td>{{ simulation.nbMensualite }}</td>
