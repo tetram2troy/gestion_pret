@@ -17,6 +17,7 @@
     <!-- endbuild -->
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- endbuild -->
   </head>
   <body ng-app="gestionPretApp">
@@ -46,9 +47,12 @@
     <!-- endbuild -->
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
+        <script src="bower_components/angular-i18n/angular-locale_fr-fr.js"></script>
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/services/pretStorage.js"></script>
+        <script src="scripts/services/pretcalculs.js"></script>
+        <script src="scripts/services/amortissement.js"></script>
         <!-- endbuild -->
 </body>
 </html>

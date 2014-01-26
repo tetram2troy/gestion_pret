@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('gestionPretApp')
-    .controller('MainCtrl', function ($scope, pretStorage) {
+    .controller('MainCtrl', function ($scope, pretStorage, pretcalculs, amortissement) {
 
         $scope.montant = 150000;
         $scope.taux = 3.8;
@@ -9,15 +9,9 @@ angular.module('gestionPretApp')
         $scope.mensualite = 775.28;
 
         $scope.lstSimulation = pretStorage.get();
-//        $scope.lstSimulation = [
-////            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45},
-////            {montant:150000, taux:3.8, nbMensualite:300, mensualite:775.28, cout:82585.45}
-//        ];
 
-        $scope.alerts = [
-//            { type: 'danger', msg: 'Oh snap! Change a few things up and try submitting again.' },
-//            { type: 'success', msg: 'Well done! You successfully read this important alert message.' }
-        ];
+        $scope.alerts = [];
+        $scope.tblAmortissement = [];
 
 
         $scope.$watch('lstSimulation', function (newValue, oldValue){
@@ -25,7 +19,7 @@ angular.module('gestionPretApp')
             if (newValue !== oldValue) { // This prevents unneeded calls to the local storage
                 pretStorage.put($scope.lstSimulation);
             }
-        }, true)
+        }, true);
 
         $scope.execCalc = function () {
 
@@ -39,79 +33,71 @@ angular.module('gestionPretApp')
                 return; //pour arreter l'execution
             }
 
-            var tauxEffectif = $scope.calcTauxEffectif($scope.taux);
+            var tauxEffectif = pretcalculs.calcTauxEffectif($scope.taux);
 
             if ( !isNaN($scope.montant) && !isNaN($scope.nbMensualite) ) {
 
-                $scope.mensualite = $scope.calcMensualite($scope.montant, tauxEffectif, null, $scope.nbMensualite);
+                $scope.mensualite = pretcalculs.calcMensualite($scope.montant, tauxEffectif, null, $scope.nbMensualite);
 
             } else if ( !isNaN($scope.montant) && !isNaN($scope.mensualite) ) {
 
-                $scope.nbMensualite = $scope.calcNbMensualite($scope.montant, tauxEffectif, $scope.mensualite, null);
+                $scope.nbMensualite = pretcalculs.calcNbMensualite($scope.montant, tauxEffectif, $scope.mensualite, null);
 
             } else if ( !isNaN($scope.mensualite) && !isNaN($scope.nbMensualite) ) {
 
-                $scope.montant = $scope.calcMontant(null, tauxEffectif, $scope.mensualite, $scope.nbMensualite);
+                $scope.montant = pretcalculs.calcMontant(null, tauxEffectif, $scope.mensualite, $scope.nbMensualite);
 
             } else {
                 $scope.addAlert("vous devez remplire le taux et au moins 2 des champs");
                 return;
             }
 
-            var cout = $scope.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
+            var cout = pretcalculs.calcCout($scope.montant, tauxEffectif,  $scope.mensualite,  $scope.nbMensualite);
 
-            $scope.lstSimulation.push({montant: $scope.montant, taux: $scope.taux, nbMensualite: $scope.nbMensualite, mensualite: $scope.mensualite, cout:cout});
+            $scope.lstSimulation.push({montant: $scope.montant, taux: $scope.taux, tauxEffectif:tauxEffectif,  nbMensualite: $scope.nbMensualite, mensualite: $scope.mensualite, cout:cout});
 
+        }
+
+
+        $scope.amortissement = function (simulation) {
+
+//            var tblAmortissement = [];
+//
+//
+//            var capitalrestant = simulation.montant;
+//            var taux = simulation.tauxEffectif;
+//            var mensualite = simulation.mensualite;
+//
+//            for (var ligne = 1; ligne <= simulation.nbMensualite; ligne++) {
+//                var capitalInital = capitalrestant;
+//                var interetdumois = capitalrestant*(taux/12);
+//                var capitalrembourse = mensualite-interetdumois;
+//
+//                capitalrestant = capitalrestant-capitalrembourse;
+//                if (capitalrestant<0){capitalrestant=0;}
+//
+//                tblAmortissement.push({ligne:ligne, capitalInital:capitalInital, interetdumois:interetdumois, capitalrembourse:capitalrembourse, capitalrestant:capitalrestant});
+//            }
+//            $scope.tblAmortissement = tblAmortissement;
+
+//            if (simulation.nbMensualite <= 30) {
+//                console.log(amortissement.calcAmortissement(simulation));
+//                simulation.nbMensualite = simulation.nbMensualite*12;
+//            }
+            $scope.tblAmortissement = amortissement.calcAmortissement(simulation);
+//            console.log(tblAmortissement);
+
+        }
+
+        $scope.copieSimulation = function (simulation) {
+            $scope.montant = simulation.montant;
+            $scope.taux = simulation.taux;
+            $scope.nbMensualite =simulation. nbMensualite;
+            $scope.mensualite = simulation.mensualite;
         }
 
         $scope.sanitarize = function (maVar){
             $scope[maVar] = parseFloat($scope[maVar]);
-        }
-
-        $scope.calcMontant = function (montant, tauxEffectif, mensualite, nbMensualite) {
-
-            var montant = (Math.pow((1+tauxEffectif/12),nbMensualite) - 1) * mensualite / (Math.pow((1+tauxEffectif/12),nbMensualite) * tauxEffectif /12 );
-            montant = Math.round(montant);
-
-            return montant;
-
-        }
-
-        $scope.calcMensualite = function (montant, tauxEffectif, mensualite, nbMensualite) {
-
-            var mensualite = (montant*(tauxEffectif/12)*Math.pow((1+tauxEffectif/12),nbMensualite)) / ((Math.pow((1+tauxEffectif/12),nbMensualite))-1);
-            //arrondissement a 2 decimal
-            mensualite = Math.round(mensualite*100)/100;
-
-            return mensualite;
-
-        }
-
-        $scope.calcNbMensualite = function (montant, tauxEffectif, mensualite, nbMensualite) {
-
-            var nbMensualite = (Math.log((12*mensualite)/(12*mensualite-tauxEffectif*montant)))/(Math.log(1+tauxEffectif/12));
-            //arrondissement a 2 decimal
-            nbMensualite = Math.round(nbMensualite);
-
-            return nbMensualite;
-
-        }
-
-        $scope.calcCout = function (montant, tauxEffectif, mensualite, nbMensualite) {
-
-            var cout = (((montant * Math.pow((1+tauxEffectif/12),nbMensualite) * tauxEffectif /12 ) / (Math.pow((1+tauxEffectif/12),nbMensualite) - 1))*nbMensualite)-montant;
-            cout = Math.round(cout*100)/100;
-
-            return cout;
-        }
-
-        $scope.calcTauxEffectif = function (taux) {
-            var tauxEffectif = taux;
-            if (taux > 1) {
-                tauxEffectif = taux / 100.0;
-            }
-
-            return tauxEffectif;
         }
 
         $scope.addAlert = function(myMsg) {
